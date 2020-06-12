@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block custom %}
+<script>
+
+
+
+localStorage.setItem('nickname', '{{nick_name}}')
+
+document.addEventListener('DOMContentLoaded', () => {
+
+
+  let displayUsername = document.querySelector('#dUser');
+  displayUsername.innerHTML = localStorage.getItem('nickname');
+});
+
+</script>
+
+
+{% endblock %}
+
+{% block title %} Chat room {% endblock %}
+
+{% block body %}
+
+<p>Hola <b><span id="dUser"></span></b></p>
+
+
+
+
+ {% endblock %}

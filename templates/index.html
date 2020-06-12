@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block custom %}
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+
+//Setting nickname to localStorage
+
+    let form = document.querySelector('#form');
+
+    form.onsubmit = () => {
+
+      let nickName = document.querySelector('#nickname').value;
+
+
+        localStorage.setItem('nickname', nickName);
+        document.querySelector('#saludo').innerHTML = localStorage.getItem('nickname');
+        document.querySelector('.container').style.display = 'block';
+        $('#nickNameModal').modal('hide');
+
+    };
+
+// Showing modal
+    if(!localStorage.getItem('nickname')) {
+      $('#nickNameModal').modal({
+        backdrop: 'static',
+        keyboard: false
+      });
+      document.querySelector('.container').style.display = 'none';
+    } else {
+            document.querySelector('.container').style.display = 'block';
+      document.querySelector('#saludo').innerHTML = localStorage.getItem('nickname');
+    }
+
+
+
+
+
+
+
+});
+
+
+
+
+</script>
+
+{% endblock %}
+
+
+{% block title %}Flack Chat{% endblock %}
+
+{% block body %}
+
+<div class="container" >
+  <div class="row">
+    <div class="col">
+      <h1>Flack Chat</h1>
+      <p>Hello <span id="saludo"></span></p>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="nickNameModal" tabindex="-1" role="dialog" aria-labelledby="nickNameModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title" id="nickNameModal">Flack Chat</h1>
+			</div>
+			<form action="" id='form' method="post">
+				<div class="modal-body">
+
+
+					<div class="form-group">
+						<label for="nickname">Let's start choosing a good Nickname:</label>
+						<input type="nickname" class="form-control" id="nickname" name='nickname' placeholder="nickname" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary" id="chat">Chat!</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+
+
+{% endblock %}
