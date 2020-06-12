@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block custom %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
 <script>
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 // Showing modal
+
     if(!localStorage.getItem('nickname')) {
       $('#nickNameModal').modal({
         backdrop: 'static',
@@ -30,6 +34,45 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.container').style.display = 'block';
       document.querySelector('#saludo').innerHTML = localStorage.getItem('nickname');
     }
+
+// Connect to socket
+
+var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+socket.on('connect', () => {
+
+  let addnewchannel = document.querySelector('#addnewchannel');
+  let addForm = document.querySelector('#addform');
+
+  addForm.onsubmit = () => {
+            let newchannel = document.querySelector('#newchannel').value;
+            socket.emit('emit_newchannel', {'newchannel': newchannel});
+            return false;
+          };
+
+
+});
+
+// on socket response
+
+socket.on('response', data => {
+              let channelListUl = document.querySelector('#channellist');
+              // const li = document.createElement('li');
+              var respNewChhannel= data.resp_newchannel;
+              var i, len, text;
+              for (i = 0, len = respNewChhannel.length, text = ""; i < len; i++) {
+                text += "<li class='list-group-item'>#" + respNewChhannel[i] + "</li>";
+              }
+              channelListUl.innerHTML = text;
+              // li.innerHTML = respNewChhannel[counter];
+              // channelListUl.append(li);
+
+
+
+
+
+            });
+
+
 
 
 
@@ -51,16 +94,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 {% block body %}
 
-<div class="container" >
+
+<div class="container pt-3" >
+	<div class="row">
+		<div class="col-sm-4">
+			<p><span  id="profilepicture">
+      <i style="font-size: 2em;" class="fas fa-user-astronaut"></i>
+        </span>
+
+				<strong>
+					Hi <span id="saludo"></span>!
+				</strong>
+			</p>
+		</div>
+
+
+
+
+
+	</div>
   <div class="row">
-    <div class="col">
-      <h1>Flack Chat</h1>
-      <p>Hello <span id="saludo"></span></p>
+    <div class="col-md-4">
+      <h4>Channels</h4>
+      <form action="" id="addform">
+        <div class="input-group">
+          <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
+            <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
+          </div>
+          <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-sm-0" id="addnewchannel">Add</button>
+
+        </div>
+      </form>
+      <br>
+      <ul class="list-group" id="channellist">
+        {% for channel in channel_list %}
+            <li class="list-group-item">#{{channel}}</li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </div>
-
-
 <div class="modal fade" id="nickNameModal" tabindex="-1" role="dialog" aria-labelledby="nickNameModal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -69,11 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			</div>
 			<form action="" id='form' method="post">
 				<div class="modal-body">
-
-
 					<div class="form-group">
 						<label for="nickname">Let's start choosing a good Nickname:</label>
-						<input type="nickname" class="form-control" id="nickname" name='nickname' placeholder="nickname" required>
+						<input type="text" class="form-control" id="nickname" name='nickname' placeholder="nickname" required>
 						</div>
 					</div>
 					<div class="modal-footer">

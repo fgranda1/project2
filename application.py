@@ -11,8 +11,16 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
 
-nick_name_list = []
+# Channel List
+channel_list = []
+
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', nick_name_list=nick_name_list )
+    return render_template('index.html', channel_list=channel_list)
+
+@socketio.on('emit_newchannel')
+def proc(data):
+    newchannel = data['newchannel']
+    channel_list.append(newchannel)
+    emit('response', {'resp_newchannel': channel_list}, broadcast=True)
