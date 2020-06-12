@@ -8,15 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let form = document.querySelector('#form');
 
-    form.onsubmit = () => {
+    form.onsubmit = (e) => {
 
       let nickName = document.querySelector('#nickname').value;
-
-
         localStorage.setItem('nickname', nickName);
         document.querySelector('#saludo').innerHTML = localStorage.getItem('nickname');
         document.querySelector('.container').style.display = 'block';
         $('#nickNameModal').modal('hide');
+        return false;
 
     };
 
