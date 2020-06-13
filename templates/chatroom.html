@@ -1,31 +1,150 @@
 {% extends 'base.html' %}
-
 {% block custom %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
 <script>
-
-
-
-localStorage.setItem('nickname', '{{nick_name}}')
 
 document.addEventListener('DOMContentLoaded', () => {
 
+// Connect to socket
 
-  let displayUsername = document.querySelector('#dUser');
-  displayUsername.innerHTML = localStorage.getItem('nickname');
+var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+socket.on('connect', () => {
+
+
+  // socket.on('disconnect', () => {
+  //
+  // });
+  function test(){
+
+    if(localStorage.getItem('nickname')) {
+      socket.emit('user_status', {'user_stat': 'conected'});
+    }
+  }
+
+
+  let addnewchannel = document.querySelector('#addnewchannel');
+  let addForm = document.querySelector('#addform');
+
+  addForm.onsubmit = () => {
+
+            let newchannel = document.querySelector('#newchannel').value;
+            socket.emit('emit_newchannel', {'newchannel': newchannel});
+            document.querySelector('#newchannel').value = ''
+            return false;
+          };
+
+
+
+
 });
+
+// on socket response
+socket.on('response', data => {
+              let channelListUl = document.querySelector('#channellist');
+
+              let respNewChhannel= data.resp_newchannel;
+
+              //Validating if channel is in server
+
+                  if (respNewChhannel == 'exist'){
+                    $('.alert').show()
+                  }else { //printing
+
+                    var i, len, text;
+                    for (i = 0, len = respNewChhannel.length, text = ""; i < len; i++) {
+                      text += "<li class='list-group-item'>#" + respNewChhannel[i] + "</li>";
+                    $('.alert').hide()
+                    channelListUl.innerHTML = text;
+
+                  }
+
+                  }
+
+
+            });
+
+  socket.on('user_status_response', data => {
+        let respUserStatus = data.user_stat_response;
+        console.log(respUserStatus);
+
+  });
+
+
+
+
+
+
+
+
+
+
+});
+
+
+
 
 </script>
 
-
 {% endblock %}
 
-{% block title %} Chat room {% endblock %}
+
+{% block title %}Flack Chat{% endblock %}
 
 {% block body %}
 
-<p>Hola <b><span id="dUser"></span></b></p>
+
+<div class="container pt-3" >
+	<div class="row">
+		<div class="col-sm-4">
+			<p><span  id="profilepicture">
+      <i style="font-size: 2em;" class="fas fa-user-astronaut"></i>
+        </span>
+
+				<strong>
+					Hi <span id="saludo"></span>!
+				</strong>
+			</p>
+		</div>
 
 
 
 
- {% endblock %}
+
+	</div>
+  <div class="row">
+    <div class="col-md-4">
+      <h4>Channels</h4>
+
+      <ul class="list-group mb-2" id="channellist" >
+        {% for channel in channel_list %}
+            <li class="list-group-item">#{{channel}}</li>
+        {% endfor %}
+      </ul>
+
+      <div class="alert alert-warning alert-dismissible fade show" style="display:none;" role="alert">
+  Channel already exists.
+  <button type="button" class="close" onclick="$('.alert').hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+      <form action="" id="addform">
+        <div class="input-group">
+          <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
+            <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
+          </div>
+          <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel">Add</button>
+
+        </div>
+      </form>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

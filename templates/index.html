@@ -7,6 +7,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+
 //Setting nickname to localStorage
 
     let form = document.querySelector('#form');
@@ -14,10 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     form.onsubmit = (e) => {
 
       let nickName = document.querySelector('#nickname').value;
-        localStorage.setItem('nickname', nickName);
+          localStorage.setItem('nickname', nickName);
         document.querySelector('#saludo').innerHTML = localStorage.getItem('nickname');
         document.querySelector('.container').style.display = 'block';
         $('#nickNameModal').modal('hide');
+        window.location.replace("");
         return false;
 
     };
@@ -38,39 +40,55 @@ document.addEventListener('DOMContentLoaded', () => {
 // Connect to socket
 
 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
 socket.on('connect', () => {
 
+//adding cnre channel
   let addnewchannel = document.querySelector('#addnewchannel');
   let addForm = document.querySelector('#addform');
 
   addForm.onsubmit = () => {
+
             let newchannel = document.querySelector('#newchannel').value;
             socket.emit('emit_newchannel', {'newchannel': newchannel});
+            document.querySelector('#newchannel').value = ''
             return false;
           };
 
 
+
+
 });
 
-// on socket response
 
+
+// on socket response
 socket.on('response', data => {
               let channelListUl = document.querySelector('#channellist');
-              // const li = document.createElement('li');
-              var respNewChhannel= data.resp_newchannel;
-              var i, len, text;
-              for (i = 0, len = respNewChhannel.length, text = ""; i < len; i++) {
-                text += "<li class='list-group-item'>#" + respNewChhannel[i] + "</li>";
-              }
-              channelListUl.innerHTML = text;
-              // li.innerHTML = respNewChhannel[counter];
-              // channelListUl.append(li);
 
+              let respNewChhannel= data.resp_newchannel;
 
+              //Validating if channel is in server
 
+                  if (respNewChhannel == 'exist'){
+                    $('.alert').show()
+                  }else { //printing
+
+                    var i, len, text;
+                    for (i = 0, len = respNewChhannel.length, text = ""; i < len; i++) {
+                      text += "<li class='list-group-item'>#" + respNewChhannel[i] + "</li>";
+                    $('.alert').hide();
+                    channelListUl.innerHTML = text;
+
+                  }
+
+                  }
 
 
             });
+
+
+
 
 
 
@@ -116,27 +134,37 @@ socket.on('response', data => {
   <div class="row">
     <div class="col-md-4">
       <h4>Channels</h4>
+
+      <ul class="list-group mb-2" id="channellist" >
+        {% for channel in channel_list %}
+            <li class="list-group-item">#{{channel}}</li>
+        {% endfor %}
+      </ul>
+
+      <div class="alert alert-warning alert-dismissible fade show" style="display:none;" role="alert">
+  Channel already exists.
+  <button type="button" class="close" onclick="$('.alert').hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
       <form action="" id="addform">
         <div class="input-group">
           <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
             <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
           </div>
-          <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-sm-0" id="addnewchannel">Add</button>
+          <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel">Add</button>
 
         </div>
       </form>
-      <br>
-      <ul class="list-group" id="channellist">
-        {% for channel in channel_list %}
-            <li class="list-group-item">#{{channel}}</li>
-        {% endfor %}
-      </ul>
+
+
     </div>
   </div>
 </div>
 <div class="modal fade" id="nickNameModal" tabindex="-1" role="dialog" aria-labelledby="nickNameModal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
+
 			<div class="modal-header">
 				<h1 class="modal-title" id="nickNameModal">Flack Chat</h1>
 			</div>
