@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block custom %}
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
 <script>
 
 document.addEventListener('DOMContentLoaded', () => {
+
+
 
 
 //Setting nickname to localStorage
@@ -39,11 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Connect to socket
 
-var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port, { forceNew: true });
 
-socket.on('connect', () => {
 
-//adding cnre channel
+socket.on('connect',() => {
+
+
+
+
+//adding new channel
   let addnewchannel = document.querySelector('#addnewchannel');
   let addForm = document.querySelector('#addform');
 
@@ -66,6 +70,8 @@ socket.on('connect', () => {
 socket.on('response', data => {
               let channelListUl = document.querySelector('#channellist');
 
+
+
               let respNewChhannel= data.resp_newchannel;
 
               //Validating if channel is in server
@@ -76,7 +82,7 @@ socket.on('response', data => {
 
                     var i, len, text;
                     for (i = 0, len = respNewChhannel.length, text = ""; i < len; i++) {
-                      text += "<li class='list-group-item'>#" + respNewChhannel[i] + "</li>";
+                      text += '<li class="list-group-item" ><a href="" data-room="'+respNewChhannel[i]+'" class="n-link">' + '#' + respNewChhannel[i] + '</a></li>';
                     $('.alert').hide();
                     channelListUl.innerHTML = text;
 
@@ -85,11 +91,44 @@ socket.on('response', data => {
                   }
 
 
+
+                  document.querySelectorAll('.n-link').forEach( link => {
+                          link.onclick = () => {
+                            load_page(link.dataset.room)
+                            return false;
+                          };
+                        });
+
+
+
+
             });
 
 
 
 
+            //loading first channel & others
+
+            load_page('general');
+
+            document.querySelectorAll('.n-link').forEach( link => {
+                    link.onclick = () => {
+                      load_page(link.dataset.room);
+
+                      return false;
+                    };
+                  });
+
+                  function load_page(roomname){
+                        const request = new XMLHttpRequest();
+                        request.open('GET', `/room/${roomname}`);
+                        request.onload = () => {
+                          const response = request.responseText;
+                          document.querySelector('.display').innerHTML = response
+                          document.title = '#' + roomname;
+                        }
+                        request.send();
+                      }
 
 
 
@@ -97,8 +136,14 @@ socket.on('response', data => {
 
 
 
+}); //end of DOMContentLoaded
 
-});
+
+
+
+
+
+
 
 
 
@@ -106,6 +151,16 @@ socket.on('response', data => {
 </script>
 
 {% endblock %}
+
+{% block style %}
+
+.l-active {
+
+  font-weight: bold;
+
+}
+
+ {% endblock%}
 
 
 {% block title %}Flack Chat{% endblock %}
@@ -115,49 +170,65 @@ socket.on('response', data => {
 
 <div class="container pt-3" >
 	<div class="row">
-		<div class="col-sm-4">
-			<p><span  id="profilepicture">
-      <i style="font-size: 2em;" class="fas fa-user-astronaut"></i>
-        </span>
+    <div class="col-sm-4">
+      <div class="row">
+    		<div class="col-sm-12">
+    			<p><span  id="profilepicture">
+          <i style="font-size: 2em;" class="fas fa-user-astronaut"></i>
+            </span>
 
-				<strong>
-					Hi <span id="saludo"></span>!
-				</strong>
-			</p>
-		</div>
+    				<strong>
+    					Hi <span id="saludo"></span>!
+    				</strong>
+    			</p>
+    		</div>
 
 
 
 
 
-	</div>
-  <div class="row">
-    <div class="col-md-4">
-      <h4>Channels</h4>
+    	</div>
+      <div class="row">
+        <div class="col-md-12">
+          <h5 data-toggle="collapse" data-target="#titlechannel" style="cursor:pointer;">Channels <i class="fas fa-chevron-down" style="font-size:0.6em; "></i></h5>
 
-      <ul class="list-group mb-2" id="channellist" >
-        {% for channel in channel_list %}
-            <li class="list-group-item">#{{channel}}</li>
-        {% endfor %}
-      </ul>
+          <div id="titlechannel" class="collapse pb-5">
+            <div class="alert alert-warning alert-dismissible fade show" style="display:none;" role="alert">
+        Channel already exists.
+        <button type="button" class="close" onclick="$('.alert').hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+            <form action="" id="addform" class="pb-2">
+              <div class="input-group">
+                <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
+                  <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
+                </div>
+                <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel">Add</button>
 
-      <div class="alert alert-warning alert-dismissible fade show" style="display:none;" role="alert">
-  Channel already exists.
-  <button type="button" class="close" onclick="$('.alert').hide()">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
-      <form action="" id="addform">
-        <div class="input-group">
-          <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
-            <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
+              </div>
+            </form>
+
+            <ul class="list-group mb-2" id="channellist" style="max-height:15em"  >
+              {% for channel in channel_list %}
+                  <li class="list-group-item"><a href="" data-room="{{channel}}" class="n-link">#{{channel}}</a></li>
+              {% endfor %}
+            </ul>
+
+
+
           </div>
-          <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel">Add</button>
+
+          <div class="test">
+
+          </div>
+
 
         </div>
-      </form>
-
-
+      </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="display"></div>
     </div>
   </div>
 </div>

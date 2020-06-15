@@ -13,12 +13,14 @@ socketio = SocketIO(app)
 
 # Channel List
 channel_list = ['general']
-usernames_and_chats = [{}]
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
     return render_template('index.html', channel_list=channel_list)
 
+@app.route("/room/<roomname>")
+def chatroom(roomname):
+    return render_template('room.html', roomname=roomname)
 
 @socketio.on('emit_newchannel')
 def proc(data):
