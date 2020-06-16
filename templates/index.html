@@ -120,14 +120,16 @@ socket.on('response', data => {
                   });
 
                   function load_page(roomname){
-                        const request = new XMLHttpRequest();
-                        request.open('GET', `/room/${roomname}`);
-                        request.onload = () => {
-                          const response = request.responseText;
-                          document.querySelector('.display').innerHTML = response
-                          document.title = '#' + roomname;
-                        }
-                        request.send();
+                        // const request = new XMLHttpRequest();
+                        // request.open('GET', `/room/${roomname}`);
+                        // request.onload = () => {
+                        //   const response = request.responseText;
+                        //   document.querySelector('.display').innerHTML = response
+                        //   document.title = '#' + roomname;
+                        // }
+                        // request.send();
+                        document.querySelector('#room_name').innerHTML = roomname;
+
                       }
 
 
@@ -204,7 +206,7 @@ socket.on('response', data => {
                 <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
                   <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="New channel" required>
                 </div>
-                <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel">Add</button>
+                <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="addnewchannel"><i class="fas fa-hashtag" style="font-size:1.4em"></i></button>
 
               </div>
             </form>
@@ -228,7 +230,20 @@ socket.on('response', data => {
       </div>
     </div>
     <div class="col-sm-8">
-        <div class="display"></div>
+        <div class="display">
+          <h1>Sala #<span id="room_name"></span></h1>
+          <div class="messages" style="height:40vw" class="overflow-auto"></div>
+          <form action="" id="addform" class="pb-2">
+            <div class="input-group">
+              <div class="input-group-prepend pr-1  col-12 col-md-9" style="padding-left:0;">
+                <input type="text" class="form-control" id="newchannel" name='newchannel' placeholder="-Message" required>
+              </div>
+              <button type="submit" class="btn btn-outline-primary btn-sm col-12 col-md-3 mt-1 mt-md-0 " id="newMessage"><i class="fas fa-paper-plane" style="font-size:1.4em;"></i></button>
+
+            </div>
+          </form>
+
+        </div>
     </div>
   </div>
 </div>
