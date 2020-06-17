@@ -131,6 +131,13 @@ socket.on('response', data => {
                         document.querySelector('#room_name').innerHTML = roomname;
 
                       }
+                      $('.chann').on('click', function(e){
+                        $(e.target).find('i').toggleClass('arrow-rotate');
+                      });
+
+                      $('.chann i').on('click', function(e){
+                        $('.chann i').toggleClass('arrow-rotate');
+                      });
 
 
 
@@ -156,11 +163,7 @@ socket.on('response', data => {
 
 {% block style %}
 
-.l-active {
 
-  font-weight: bold;
-
-}
 
  {% endblock%}
 
@@ -192,7 +195,7 @@ socket.on('response', data => {
     	</div>
       <div class="row">
         <div class="col-md-12">
-          <h5 data-toggle="collapse" data-target="#titlechannel" style="cursor:pointer;">Channels <i class="fas fa-chevron-down" style="font-size:0.6em; "></i></h5>
+          <h5 class="chann" data-toggle="collapse" data-target="#titlechannel" style="cursor:pointer;">Channels <i class="fas fa-chevron-down" style="font-size:0.6em; "></i></h5>
 
           <div id="titlechannel" class="collapse pb-5">
             <div class="alert alert-warning alert-dismissible fade show" style="display:none;" role="alert">
